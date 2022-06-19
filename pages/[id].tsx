@@ -75,6 +75,7 @@ const AnimeDetailPage = (): ReactElement => {
   const [relatedCollectionNames, setRelatedCollectionNames] = useState(
     [] as string[]
   );
+  const [dataUpdateTrigger, setDataUpdateTrigger] = useState(false);
 
   const { data, loading, error } = useQuery(service.GET_ANIME, {
     variables: {
@@ -97,7 +98,7 @@ const AnimeDetailPage = (): ReactElement => {
         Swal.fire("Something's Wrong!", "Please reload the page!", "question");
       }
     }
-  }, [pageId]);
+  }, [pageId, dataUpdateTrigger]);
 
   const transitionElement = (image: string): ReactElement => {
     return (
@@ -173,6 +174,13 @@ const AnimeDetailPage = (): ReactElement => {
     }
   }
 
+  const handleFormModalClosed = (): void => {
+    setDataUpdateTrigger((state) => {
+      return !state;
+    });
+    toggleFormModal(false);
+  };
+
   return (
     <>
       <div className="row row-cols-1 mb-4">
@@ -199,7 +207,7 @@ const AnimeDetailPage = (): ReactElement => {
         <CollectionFormModal
           selectedAnimes={[anime.id]}
           show={showFormModal}
-          handleClose={toggleFormModal.bind(this, false)}
+          handleClose={handleFormModalClosed}
         />
         <RelatedCollectionModal
           show={showRelatedCollectionsModal}

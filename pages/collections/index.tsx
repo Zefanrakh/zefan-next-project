@@ -28,8 +28,9 @@ const Collections: NextPage<propsType> = (props: propsType): ReactElement => {
   );
   const [showAddModal, toggleAddModal] = useState(false);
   const [showEditModal, toggleEditModal] = useState(false);
-  const [editedCollectionName,setEditedCollectionName] = useState(null as string | null)
-
+  const [editedCollectionName, setEditedCollectionName] = useState(
+    null as string | null
+  );
 
   useEffect(() => {
     const collections = localStorage.getItem("collections");
@@ -67,11 +68,23 @@ const Collections: NextPage<propsType> = (props: propsType): ReactElement => {
         const collectionsArr = JSON.parse(collections) as Collection[];
         const newCollection = collectionsArr.find(
           (collection) => collection.name === newCollectionName
-        )!;
+        );
 
-        setCollections((prevCollections) => {
-          return [...prevCollections, newCollection];
-        });
+        if (!newCollection) {
+          setCollections((prevCollections) => {
+            return [
+              ...prevCollections,
+              {
+                name: newCollectionName,
+                ids: [],
+              },
+            ];
+          });
+        } else {
+          setCollections((prevCollections) => {
+            return [...prevCollections, newCollection];
+          });
+        }
       } else {
       }
     }
@@ -134,10 +147,10 @@ const Collections: NextPage<propsType> = (props: propsType): ReactElement => {
     });
   };
 
-  const editCollection = (name:string):void=>{
-    setEditedCollectionName(name)
-    toggleEditModal(true)
-  }
+  const editCollection = (name: string): void => {
+    setEditedCollectionName(name);
+    toggleEditModal(true);
+  };
 
   const goToDetailPage = (name: string) => {
     Router.push(`/collections/${name}`);
