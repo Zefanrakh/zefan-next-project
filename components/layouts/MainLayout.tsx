@@ -65,7 +65,8 @@ const Container = styled("div")<ContainerProps>(
 );
 
 const Branding = styled("a")<{}>({
-  float: "left",
+  display: "flex",
+  cursor: "pointer",
   "& img": {
     marginRight: "10px",
     display: "inline-block",
@@ -112,11 +113,17 @@ const MainLayout = (props: propsType) => {
     <div>
       <SiteHeader>
         <Container>
-          <Branding>
-            <img src="images/logo.png" alt="" />
+          <Branding href="/">
+            <img
+              css={{
+                height: "40px",
+              }}
+              src="images/logo.png"
+              alt=""
+            />
             <div>
-              <h1>Company Name</h1>
-              <small>Tagline goes here</small>
+              <h1>ANIMINE</h1>
+              <small>My Animes DB</small>
             </div>
           </Branding>
           <NavigationContext.Provider
@@ -144,9 +151,7 @@ const MainLayout = (props: propsType) => {
       </main>
       <Footer>
         <Container>
-          <Colophon>
-
-          </Colophon>
+          <Colophon></Colophon>
         </Container>
       </Footer>
     </div>
