@@ -73,7 +73,9 @@ export type PageQueryResponseType = {
 };
 
 export type PageQueryRequestType = {
-  page: number;
-  perPage: number;
-  sort: string;
+  page?: number;
+  perPage?: number;
+  sort?: string;
+  id?: number;
+  id_in?: number[];
 };

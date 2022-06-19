@@ -1,33 +1,60 @@
 import styled from "@emotion/styled";
 import Icon from "@mdi/react";
-import { ReactElement } from "react";
-import { mdiDotsHorizontal } from "@mdi/js";
+import { CSSObject } from "@emotion/react";
+import { ReactElement, useContext } from "react";
+import { mdiDotsHorizontal, mdiPencil, mdiTrashCan } from "@mdi/js";
+import CardActionContext from "../../store/card_action_context";
 
-const CardActionWrapper = styled("div")<{}>({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  userSelect: "none",
-  position: "absolute",
-  top: "10px",
-  right: "10px",
-  cursor: "pointer",
-  "&:hover": {
-    height: "100%",
-    "div:nth-child(2)": {
-      transform: "translateY(40px)",
-      opacity: "100%",
-    },
-    "div:nth-child(3)": {
-      transform: "translateY(80px)",
-      opacity: "100%",
-    },
-    "div:nth-child(4)": {
-      transform: "translateY(120px)",
-      opacity: "100%",
-    },
+export enum Actions {
+  REMOVE = "REMOVE",
+  EDIT = "EDIT",
+}
+
+type actionIconsType = {
+  [action in Actions]: string;
+};
+
+const actionIcons: actionIconsType = {
+  REMOVE: mdiTrashCan,
+  EDIT: mdiPencil,
+};
+
+type CardActionWrapperProps = {
+  isToggleChildren: boolean;
+};
+
+const CardActionWrapper = styled("div")<CardActionWrapperProps>(
+  {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    userSelect: "none",
+    position: "absolute",
+    top: "10px",
+    right: "25px",
+    cursor: "pointer",
   },
-});
+  (props: CardActionWrapperProps): CSSObject => {
+    if (props.isToggleChildren) {
+      return {
+        height: "100%",
+        "div:nth-of-type(2)": {
+          transform: "translateY(40px)",
+          opacity: "100%",
+        },
+        "div:nth-of-type(3)": {
+          transform: "translateY(80px)",
+          opacity: "100%",
+        },
+        "div:nth-of-type(4)": {
+          transform: "translateY(120px)",
+          opacity: "100%",
+        },
+      };
+    }
+    return {};
+  }
+);
 
 const CardActionMainButton = styled("div")<{}>({
   position: "relative",
@@ -62,13 +89,33 @@ const CardActionSubButton = styled("div")<{}>({
   "&:hover": {
     cursor: "pointer",
   },
+  zIndex: 1,
 });
 
-type propsType = {};
+type propsType = {
+  id: any;
+  actions: Actions[];
+};
 
 const CardActions = (props: propsType): ReactElement => {
+  const { id, actions } = props;
+  const ctx = useContext(CardActionContext);
+
+  const handleOnClik = (action: Actions) => {
+    ctx.triggerAction({
+      id,
+      type: action,
+    });
+  };
+
   return (
-    <CardActionWrapper>
+    <CardActionWrapper
+      isToggleChildren={ctx.toggledCard === id}
+      onClick={(event) => {
+        event.stopPropagation();
+        ctx.toggleCardActionMenu(id);
+      }}
+    >
       <CardActionMainButton>
         <CardActionMainButtonComponent>
           <Icon
@@ -80,24 +127,20 @@ const CardActions = (props: propsType): ReactElement => {
           ></Icon>
         </CardActionMainButtonComponent>
       </CardActionMainButton>
-      <CardActionSubButton>
-        <Icon
-          path={mdiDotsHorizontal}
-          style={{
-            color: "white",
-            fontSize: "10px",
-          }}
-        ></Icon>
-      </CardActionSubButton>
-      <CardActionSubButton>
-        <Icon
-          path={mdiDotsHorizontal}
-          style={{
-            color: "white",
-            fontSize: "10px",
-          }}
-        ></Icon>
-      </CardActionSubButton>
+      {actions.map((action) => (
+        <CardActionSubButton
+          key={action}
+          onClick={handleOnClik.bind(this, action)}
+        >
+          <Icon
+            path={actionIcons[action]}
+            size={0.8}
+            style={{
+              color: "white",
+            }}
+          ></Icon>
+        </CardActionSubButton>
+      ))}
     </CardActionWrapper>
   );
 };

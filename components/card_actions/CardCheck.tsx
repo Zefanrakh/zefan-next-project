@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { CSSObject } from "@emotion/react";
 import { mdiCheck } from "@mdi/js";
 import Icon from "@mdi/react";
-import { ReactElement, useReducer, useState } from "react";
+import { ReactElement } from "react";
 
 type CardActionWrapperProps = {
   isChecked: boolean;
@@ -16,7 +16,7 @@ const CardActionWrapper = styled("div")<CardActionWrapperProps>(
     userSelect: "none",
     position: "absolute",
     top: "10px",
-    right: "10px",
+    right: "25px",
     cursor: "pointer",
   },
   (props: CardActionWrapperProps): CSSObject => {
@@ -70,7 +70,8 @@ const CardCheck = (props: propsType): ReactElement => {
     <CardActionWrapper isChecked={props.isChecked}>
       <CardActionMainButton
         isChecked={props.isChecked}
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation();
           props.onCheck();
         }}
       >

@@ -58,6 +58,9 @@ const CollectedItemTag = styled.div`
   margin: 5px;
   cursor: pointer;
   z-index: 2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
   &:hover {
     background-color: #c0d1e6;
   }
@@ -179,6 +182,9 @@ const ListItem = styled("div")<ListItemProps>(
   {
     position: "relative",
     padding: "0.25rem 0.3rem",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   },
   (props: ListItemProps): CSSObject => {
     return {
@@ -189,8 +195,8 @@ const ListItem = styled("div")<ListItemProps>(
           ? "0.25rem"
           : "1rem"
         : undefined,
-      color: props.isGroupTitle ? "black" : "#5a65ff",
-      fontWeight: props.isGroupTitle ? "bold" : undefined,
+      color: props.isGroupTitle ? "black" : "#ff9811",
+      fontWeight: props.isGroupTitle ? "bold" : 500,
       background: props.selected
         ? "linear-gradient(180deg, rgba(238,238,238,1) 0%, rgba(238,238,238,1) 60%, rgba(230,230,230,1) 100%)"
         : "white",
@@ -249,7 +255,6 @@ const CustomMultipleSelect = (props: propsType): ReactElement => {
   useEffect(() => {
     const SelectContainerComponentHeight =
       SelectContainerRef.current.offsetHeight;
-    console.log({ SelectContainerComponentHeight, selectContainerHeight });
     if (SelectContainerComponentHeight !== selectContainerHeight) {
       setSelectContainerHeight(SelectContainerComponentHeight);
     }
@@ -402,7 +407,7 @@ const CustomMultipleSelect = (props: propsType): ReactElement => {
                       <Icon
                         size={1}
                         style={{
-                          color: "#5a65ff",
+                          color: "#ffc233",
                           position: "absolute",
                           left: "25%",
                           transform:

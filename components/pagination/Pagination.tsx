@@ -1,10 +1,67 @@
-import { mdiChevronDoubleLeft, mdiChevronDoubleRight } from "@mdi/js";
+/** @jsxImportSource @emotion/react */
+import styled from "@emotion/styled";
+import { CSSObject } from "@emotion/react";
+import {
+  mdiChevronDoubleLeft,
+  mdiChevronDoubleRight,
+  mdiChevronLeft,
+  mdiChevronRight,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import { PageQueryResponseDataPageInfoType } from "anime";
-import { isEmpty, toNumber } from "lodash";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { ReactElement, useEffect, useState } from "react";
+
+const PaginationBar = styled("div")<{}>({
+  clear: "both",
+  textAlign: "center",
+  marginBottom: "1rem"
+});
+
+type PaginationNumberProps = {
+  isActive?: boolean;
+  disabled?: boolean;
+};
+
+const PaginationNumber = styled("a")<PaginationNumberProps>(
+  {
+    display: "inline-block",
+    width: "40px",
+    height: "40px",
+    borderRadius: "5px",
+    boxShadow: "0 1px 1px rgba(0, 0, 0, 0.2)",
+    lineHeight: "2.6",
+    fontSize: "1em",
+    WebkitTransition: ".3s ease",
+    transition: ".3s ease",
+  },
+  (props: PaginationNumberProps): CSSObject => {
+    let propsDependedAttributes: CSSObject = {
+      background: "#e7e7e7",
+      color: "#84878d",
+      "&:hover": {
+        background: "#ffaa3c",
+        color: "white",
+      },
+    };
+    if (props.isActive && !props.disabled) {
+      propsDependedAttributes = {
+        ...propsDependedAttributes,
+        background: "#ffaa3c",
+        color: "white",
+      };
+    } else if (props.disabled) {
+      propsDependedAttributes = {
+        ...propsDependedAttributes,
+        color: "#aaaaaa",
+        "&:hover": {
+          color: "#aaaaaa",
+        },
+      };
+    }
+    return propsDependedAttributes;
+  }
+);
 
 type propsType = {
   pageInfo: PageQueryResponseDataPageInfoType;
@@ -16,7 +73,6 @@ const Pagination = (props: propsType): ReactElement => {
   const { total, currentPage, lastPage, hasNextPage, perPage } = props.pageInfo;
 
   useEffect(() => {
-    console.log({ total, lastPage });
     let firstAvailablePage = currentPage - 4;
     if (firstAvailablePage < 0) firstAvailablePage = 1;
     let lastAvailablePage = firstAvailablePage + 9;
@@ -33,51 +89,43 @@ const Pagination = (props: propsType): ReactElement => {
 
     setPaginationNumbers(pages);
   }, [props.pageInfo]);
+
   return (
-    <nav aria-label="Page navigation example">
-      <ul className="pagination justify-content-center my-5 flex-wrap">
-        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-          <Link href={`?page=${currentPage - 1}`}>
-            <a className="page-link">Previous</a>
+    <>
+      <PaginationBar>
+        <PaginationNumber disabled={currentPage === 1}>
+          <Link href={currentPage === 1 ? "#" : `?page=${currentPage - 1}`}>
+            <Icon size={0.8} path={mdiChevronLeft} />
           </Link>
-        </li>
-        <li className="page-item">
-          <Link href="?page=1">
-            <a className="page-link">
-              <Icon size={0.7} path={mdiChevronDoubleLeft}></Icon>
-            </a>
+        </PaginationNumber>
+        <PaginationNumber>
+          <Link href={"?page=1"}>
+            <Icon size={0.8} path={mdiChevronDoubleLeft} />
           </Link>
-        </li>
+        </PaginationNumber>
         {paginationNumbers.map((page: number) => {
           return (
-            <li
-              className={`page-item ${page === currentPage ? "active" : ""}`}
-              key={page}
-            >
+            <PaginationNumber key={page} isActive={page === currentPage}>
               <Link href={`?page=${page}`}>
-                <a className="page-link">{page}</a>
+                <p>{page}</p>
               </Link>
-            </li>
+            </PaginationNumber>
           );
         })}
-        <li className="page-item">
+        <PaginationNumber>
           <Link href={`?page=${lastPage}`}>
-            <a className="page-link">
-              <Icon size={0.7} path={mdiChevronDoubleRight}></Icon>
-            </a>
+            <Icon size={0.8} path={mdiChevronDoubleRight} />
           </Link>
-        </li>
-        <li
-          className={`page-item ${currentPage === lastPage ? "disabled" : ""}`}
-        >
-          <Link href={`?page=${currentPage + 1}`}>
-            <a className="page-link" href="#">
-              Next
-            </a>
+        </PaginationNumber>
+        <PaginationNumber disabled={currentPage === lastPage}>
+          <Link
+            href={currentPage === lastPage ? "#" : `?page=${currentPage + 1}`}
+          >
+            <Icon size={0.8} path={mdiChevronRight} />
           </Link>
-        </li>
-      </ul>
-    </nav>
+        </PaginationNumber>
+      </PaginationBar>
+    </>
   );
 };
 

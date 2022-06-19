@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import { Collection } from "collections";
 import { uniq } from "lodash";
 import { ReactElement, useEffect, useState } from "react";
@@ -9,28 +10,29 @@ type propsType = {
   show: boolean;
   selectedAnimes: number[];
   handleClose: any;
+  noSelectedAnimes?: boolean;
+  editedName?: string | null;
 };
 
 const CollectionFormModal = (props: propsType): ReactElement => {
-  const { show, handleClose, selectedAnimes } = props;
-
+  const { show, handleClose, selectedAnimes, noSelectedAnimes, editedName } =
+    props;
   const [collections, setCurrentCollections] = useState([] as Collection[]);
-
   const [saveToCollectionType, setSaveToCollectionType] = useState("existing");
-
   const [newCollectionName, setNewCollectionName] = useState("");
-
   const [selectedCollections, setSelectedCollections] = useState(
     [] as string[]
   );
-
   const [validityReason, setValidityReason] = useState("");
-
   const [isValid, setIsValid] = useState(false);
 
   const Swalert = Swal.mixin({
     didClose: () => {
-      handleClose(true);
+      if (noSelectedAnimes) {
+        handleClose(false, newCollectionName);
+      } else {
+        handleClose(true);
+      }
     },
   });
 
@@ -40,7 +42,10 @@ const CollectionFormModal = (props: propsType): ReactElement => {
       const collectionsArray = JSON.parse(localCollections) as Collection[];
       setCurrentCollections(collectionsArray);
     }
-  }, []);
+    if (noSelectedAnimes) {
+      setSaveToCollectionType("new");
+    }
+  }, [show]);
 
   const checkNewCollectionValidity = () => {
     if (
@@ -77,13 +82,26 @@ const CollectionFormModal = (props: propsType): ReactElement => {
 
   const handleSave = () => {
     if (saveToCollectionType === "new" && isValid) {
-      const updatedCollections = [
-        ...collections,
-        {
-          name: newCollectionName,
-          ids: [...selectedAnimes],
-        },
-      ];
+      let updatedCollections: Collection[] = [];
+      if (editedName) {
+        updatedCollections = collections.map((collection) => {
+          if (collection.name === editedName) {
+            return {
+              ...collection,
+              name: newCollectionName,
+            };
+          }
+          return collection;
+        });
+      } else {
+        updatedCollections = [
+          ...collections,
+          {
+            name: newCollectionName,
+            ids: [...selectedAnimes],
+          },
+        ];
+      }
 
       setCurrentCollections(updatedCollections);
 
@@ -92,7 +110,9 @@ const CollectionFormModal = (props: propsType): ReactElement => {
 
       Swalert.fire({
         icon: "success",
-        title: "New Collection Created",
+        title: editedName
+          ? "Collection name successfully edited"
+          : "New Collection Created",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -121,52 +141,68 @@ const CollectionFormModal = (props: propsType): ReactElement => {
     }
   };
 
+  const inputNewCollectionElement = (): ReactElement => {
+    return (
+      <div className="mb-3">
+        <label htmlFor="collection_name" className="form-label">
+          New colection name
+        </label>
+        <input
+          className="form-control"
+          id="collection_name"
+          type="text"
+          value={newCollectionName}
+          placeholder="Enter name"
+          onChange={handleInputChange}
+        />
+        {!isValid && <p className="mt-1 text-danger">{validityReason}</p>}
+      </div>
+    );
+  };
+
   return (
     <Modal centered show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Modal heading</Modal.Title>
+        <Modal.Title>
+          {editedName ? "Edit Collection Name" : "Save to Collections"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Tabs
-          // @ts-ignore
-          fill
-          id="controlled-tab-example"
-          activeKey={saveToCollectionType}
-          onSelect={(k) => setSaveToCollectionType(k as string)}
-          className="mb-3"
-        >
-          <Tab eventKey="existing" title="Choose Collection" className="w-100">
-            <CustomMultipleSelect
-              values={collections.map((collection) => ({
-                label: collection.name,
-                value: collection.name,
-              }))}
-              placeHolder="Cari"
-              onInput={handleSelectChange}
-              value={selectedCollections}
-              showSearchBar={true}
-              showCollectedTags={false}
-              collectedTagsContainerHeight={4}
-              dropdownMaxHeight={11}
-            />
-          </Tab>
-          <Tab eventKey="new" title="New Collection">
-            <div className="mb-3">
-              <label htmlFor="collection_name" className="form-label">
-                New colection name
-              </label>
-              <input
-                className="form-control"
-                id="collection_name"
-                type="text"
-                value={newCollectionName}
-                placeholder="Enter name"
-                onChange={handleInputChange}
+        {!noSelectedAnimes ? (
+          <Tabs
+            // @ts-ignore
+            fill
+            id="controlled-tab-example"
+            activeKey={saveToCollectionType}
+            onSelect={(k) => setSaveToCollectionType(k as string)}
+            className="mb-3"
+          >
+            <Tab
+              eventKey="existing"
+              title="Choose Collection"
+              className="w-100"
+            >
+              <CustomMultipleSelect
+                values={collections.map((collection) => ({
+                  label: collection.name,
+                  value: collection.name,
+                }))}
+                placeHolder="Search Collections"
+                onInput={handleSelectChange}
+                value={selectedCollections}
+                showSearchBar={true}
+                showCollectedTags={false}
+                collectedTagsContainerHeight={4}
+                dropdownMaxHeight={11}
               />
-              {!isValid && <p className="mt-1 text-danger">{validityReason}</p>}
-            </div>
-          </Tab>
-        </Tabs>
+            </Tab>
+            <Tab eventKey="new" title="New Collection">
+              {inputNewCollectionElement()}
+            </Tab>
+          </Tabs>
+        ) : (
+          inputNewCollectionElement()
+        )}
       </Modal.Body>
       <Modal.Footer>
         <button className=" btn btn-secondary" onClick={handleClose}>
@@ -174,7 +210,7 @@ const CollectionFormModal = (props: propsType): ReactElement => {
         </button>
         <button
           disabled={saveToCollectionType === "new" && !isValid}
-          className=" btn btn-primary"
+          className=" btn btn-warning"
           onClick={handleSave}
         >
           Save Changes

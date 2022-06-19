@@ -13,7 +13,7 @@ import {
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useMediaQuery } from "react-responsive";
-import ExpandedContext from "../../store/isExpandedContext";
+import NavigationContext from "../../store/navigation_context";
 
 type Menu = {
   title: string;
@@ -171,7 +171,7 @@ type propsType = {
 
 const SideBar = (props: propsType): ReactElement => {
   const router = useRouter();
-  const expandedCtx = useContext(ExpandedContext);
+  const expandedCtx = useContext(NavigationContext);
   const [activeMenu, setActiveMenu] = useState("Assignment");
   const [activeMenuLevel2, setActiveMenuLevel2] = useState("");
 

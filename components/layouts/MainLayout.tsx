@@ -1,128 +1,155 @@
 /** @jsxImportSource @emotion/react */
 import { CSSObject } from "@emotion/react";
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
-import NavBar from "../navigations/NavBar";
-import SideBar from "../navigations/SideBar";
-import PropTypes from "prop-types";
-import { useMediaQuery, Context as ResponsiveContext } from "react-responsive";
-import ExpandedContext from "../../store/isExpandedContext";
+import Link from "next/link";
+import React, { useState } from "react";
+import Icon from "@mdi/react";
+import { mdiMenu } from "@mdi/js";
+import MainNavigationComponent from "../navigations/MainNavigation";
+import MobileNavigationComponent from "../navigations/MobileNavigation";
+import BreadCrumbsComponent from "./breadcrumbs/BreadCrumbs";
+import NavigationContext from "../../store/navigation_context";
 
-PropTypes.element.isRequired;
+const SiteHeader = styled("header")<{}>({
+  padding: "50px 0",
+  "& *": { zoom: 1 },
+  "&:after": {
+    content: '" "',
+    clear: "both",
+    display: "block",
+    overflow: "hidden",
+    height: 0,
+  },
+});
 
-declare const Transition: any;
-declare const RouterView: any;
-
-type SideBarBorderProp = {
-  isExpanded: boolean;
-  transition: number;
-  maxSidebarWidth: number;
+type ContainerProps = {
+  isMainContent?: boolean;
 };
 
-const SideBarBorder = styled("div")<SideBarBorderProp>(
+const Container = styled("div")<ContainerProps>(
   {
-    width: "5px",
-    cursor: "pointer",
-    top: "0px",
-    bottom: "0px",
-    background: "#f1f1f1",
-    position: "fixed",
-    "&:hover": {
-      width: "9px",
-      background: "#9e9e9e",
+    marginRight: "auto",
+    marginLeft: "auto",
+    paddingLeft: "15px",
+    paddingRight: "15px",
+    "& *": {
+      zoom: 1,
+    },
+    "&:after": {
+      content: '" "',
+      clear: "both",
+      display: "block",
+      overflow: "hidden",
+      height: "0",
+    },
+    "@media (min-width: 768px)": {
+      width: "750px",
+    },
+    "@media (min-width: 992px)": {
+      width: "970px",
+    },
+    "@media (min-width: 1200px)": {
+      width: "1170px",
     },
   },
-  (props: SideBarBorderProp): CSSObject => {
-    return {
-      left: props.isExpanded ? `${props.maxSidebarWidth}px` : "80px",
-      transition: `left ease-in-out ${props.transition}s, width ease-in-out 0.25s, background ease-in-out 0.25s`,
-    };
+  (props: ContainerProps): CSSObject => {
+    if (props.isMainContent) {
+      return {
+        background: "white",
+        borderRadius: "5px",
+        padding: "30px",
+      };
+    }
+    return {};
   }
 );
+
+const Branding = styled("a")<{}>({
+  float: "left",
+  "& img": {
+    marginRight: "10px",
+    display: "inline-block",
+  },
+  "& div": {
+    display: "inline-block",
+    "& h1": {
+      margin: "0",
+      textTransform: "uppercase",
+      color: "white",
+      fontSize: "1.0666666667em",
+    },
+    "& small": {
+      fontSize: "0.8666666667em",
+      color: "#9198af",
+    },
+  },
+});
+
+const Page = styled("div")<{}>({
+  "& figure": {
+    marginBottom: "30px",
+  },
+  "& img": {
+    maxWidth: "100%",
+  },
+});
+
+const Footer = styled("footer")<{}>({
+  padding: "50px 0",
+});
+const Colophon = styled("div")<{}>({
+  paddingTop: "30px",
+});
 
 type propsType = {
   children: React.ReactNode;
 };
 
 const MainLayout = (props: propsType) => {
-  const { children } = props;
-  const [isExpanded, setExpandState] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const isMobileOrTabletAtMaxWidth768 = useMediaQuery(
-    { maxWidth: 768 },
-    undefined,
-    () => {
-      setTransitionIsUsed(false);
-    }
-  );
-  const [isUseTransition, setTransitionIsUsed] = useState(true);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const maxSidebarWidth = 350;
-
-  const transition = 0.25;
+  const [navbarShown, showNavbar] = useState(false);
 
   return (
-    <ExpandedContext.Provider
-      value={{ isExpanded: isExpanded, setExpandState }}
-    >
-      <div css={{ position: "relative" }}>
-        <NavBar
-          transition={transition}
-          sidebarWidth={isExpanded ? maxSidebarWidth : 80}
-        />
-        <div css={{ display: "flex" }}>
-          <div
-            css={{
-              position: "relative",
-              zIndex: 20,
-              display:
-                mounted && !isMobileOrTabletAtMaxWidth768 ? "unset" : "none",
+    <div>
+      <SiteHeader>
+        <Container>
+          <Branding>
+            <img src="images/logo.png" alt="" />
+            <div>
+              <h1>Company Name</h1>
+              <small>Tagline goes here</small>
+            </div>
+          </Branding>
+          <NavigationContext.Provider
+            value={{
+              isExpanded: false,
+              setExpandState: () => {},
+              isToggleNavigation: navbarShown,
+              setToggleNavigation: () => {
+                showNavbar(!navbarShown);
+              },
             }}
           >
-            <SideBar
-              maxSidebarWidth={maxSidebarWidth}
-              transition={transition}
-              toggleSidebar={setExpandState}
-            />
-            <SideBarBorder
-              onClick={(): void => {
-                setTransitionIsUsed(true);
-                setExpandState(!isExpanded);
-              }}
-              isExpanded={isExpanded}
-              transition={transition}
-              maxSidebarWidth={maxSidebarWidth}
-            />
-          </div>
-          {/* )} */}
-          <div
-            css={{
-              paddingLeft:
-                (mounted && isMobileOrTabletAtMaxWidth768) || !mounted
-                  ? "0%"
-                  : isExpanded
-                  ? `${maxSidebarWidth + 70}px`
-                  : "100px",
-              marginTop: "100px",
-              width: "98%",
-              transition: `ease-in-out padding-left ${
-                mounted && isMobileOrTabletAtMaxWidth768
-                  ? 0
-                  : isUseTransition
-                  ? transition
-                  : 0
-              }s`,
-            }}
-          >
-            {children}
-          </div>
-        </div>
-      </div>
-    </ExpandedContext.Provider>
+            <MainNavigationComponent />
+            <MobileNavigationComponent />
+          </NavigationContext.Provider>
+        </Container>
+      </SiteHeader>
+      <main>
+        <Container isMainContent>
+          <Page>
+            <BreadCrumbsComponent />
+            {props.children}
+          </Page>
+        </Container>
+      </main>
+      <Footer>
+        <Container>
+          <Colophon>
+
+          </Colophon>
+        </Container>
+      </Footer>
+    </div>
   );
 };
 

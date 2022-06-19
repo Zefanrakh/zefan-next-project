@@ -1,8 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import styled from "@emotion/styled";
 import { NextPage } from "next";
-import { ReactElement, useContext, useEffect, useState } from "react";
-import Icon from "@mdi/react";
+import { ReactElement, useEffect, useState } from "react";
 import withApollo from "../hoc/withApollo";
 import { getDataFromTree } from "@apollo/react-ssr";
 import { useQuery } from "@apollo/react-hooks";
@@ -11,25 +9,18 @@ import {
   PageQueryRequestType,
   PageQueryResponseDataPageInfoType,
 } from "anime";
-import Card from "../components/card/Card";
+import Card from "../components/card/CardAlternative";
 import Service from "../apollo/queries";
 import { toNumber, uniq } from "lodash";
 import CollectionFormModal from "../components/collection_form/FormModal";
+import Pagination from "../components/pagination/PaginationAlternative";
 import { useRouter } from "next/router";
-import Pagination from "../components/pagination/Pagination";
-import { mdiCardsHeartOutline } from "@mdi/js";
-import CardActionContext from "../store/card_action_context";
-
-const AnimeList = styled("div")<{}>({
-  margin: "0 -15px",
-  display: "flex",
-  justifyContent: "center",
-  flexWrap: "wrap",
-});
 
 const Home: NextPage<{}> = (): ReactElement => {
   const router = useRouter();
+
   const service = new Service();
+
   const [isMount, setIsMount] = useState(true);
   const { data, loading, error, refetch } = useQuery(service.GET_ANIME_LIST, {
     variables: {
@@ -90,16 +81,15 @@ const Home: NextPage<{}> = (): ReactElement => {
   };
 
   return (
-    <>
-      <div className="row row-cols-1 mb-4">
-        <div className="col-sm-12 col-md-auto">
+    <div className="container">
+      <div className="row row-cols-1 mb-2">
+        <div className="col-sm-12 col-md-auto text-white">
           <button
-            className="btn btn-warning w-100 text-white"
+            className="btn btn-primary w-100"
             disabled={!selectedAnimes.length}
             onClick={toggleModal.bind(this, true)}
           >
-            <Icon path={mdiCardsHeartOutline} size={0.8} />
-            {"  "}Save to collections
+            Add to collections
           </button>
         </div>
         <CollectionFormModal
@@ -108,20 +98,21 @@ const Home: NextPage<{}> = (): ReactElement => {
           handleClose={handleModalClose}
         />
       </div>
-      {paginationData.perPage !== 1 && <Pagination pageInfo={paginationData} />}
-      <AnimeList>
+      <Pagination pageInfo={paginationData} />
+      <div className="row row-cols-2 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 justify-content-center">
         {animes.map((anime) => (
-          <Card
-            key={anime.id}
-            anime={anime}
-            isChecked={selectedAnimes.includes(anime.id)}
-            onCheck={handleSelectAnime.bind(this, anime.id)}
-            onClick={goToDetailPage}
-          />
+          <div className="col" key={anime.id}>
+            <Card
+              anime={anime}
+              isChecked={selectedAnimes.includes(anime.id)}
+              onCheck={handleSelectAnime.bind(this, anime.id)}
+              onClick={goToDetailPage}
+            />
+          </div>
         ))}
-      </AnimeList>
-      {paginationData.perPage !== 1 && <Pagination pageInfo={paginationData} />}
-    </>
+      </div>
+      <Pagination pageInfo={paginationData} />
+    </div>
   );
 };
 
