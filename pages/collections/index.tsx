@@ -68,23 +68,13 @@ const Collections: NextPage<propsType> = (props: propsType): ReactElement => {
         const collectionsArr = JSON.parse(collections) as Collection[];
         const newCollection = collectionsArr.find(
           (collection) => collection.name === newCollectionName
-        );
+        )!;
 
-        if (!newCollection) {
-          setCollections((prevCollections) => {
-            return [
-              ...prevCollections,
-              {
-                name: newCollectionName,
-                ids: [],
-              },
-            ];
-          });
-        } else {
-          setCollections((prevCollections) => {
-            return [...prevCollections, newCollection];
-          });
-        }
+        setCollections((prevCollections) => {
+          return [...prevCollections, newCollection];
+        });
+
+        setFetched(true);
       } else {
       }
     }
