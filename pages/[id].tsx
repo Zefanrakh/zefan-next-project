@@ -184,7 +184,7 @@ const AnimeDetailPage = (): ReactElement => {
   return (
     <>
       <div className="row row-cols-1 mb-4">
-        <div className="col-sm-12 col-md-auto mt-3">
+        <div className="col-sm-12 col-md-auto mb-3">
           <button
             className="btn btn-warning w-100 text-white"
             onClick={toggleFormModal.bind(this, true)}
@@ -194,7 +194,7 @@ const AnimeDetailPage = (): ReactElement => {
           </button>
         </div>
         {!!relatedCollectionNames.length && (
-          <div className="col-sm-12 col-md-auto mt-3">
+          <div className="col-sm-12 col-md-auto">
             <button
               className="btn btn-warning w-100 text-white"
               onClick={toggleRelatedCollectionsModal.bind(this, true)}
